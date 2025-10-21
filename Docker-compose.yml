@@ -6,7 +6,7 @@ services:
       context: ./main     # Folder containing Dockerfile
     container_name: flask_lab_app
     ports:
-      - "5000:5000" 
+      - "5011:5100" 
     environment:
       - FLASK_ENV=production
     restart: unless-stopped
