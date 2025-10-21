@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Quiz App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+   <style>
+    body {
+  font-family: Arial, sans-serif;
+  background: #f9fafc;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.quiz-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  padding: 30px;
+  width: 400px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+.question-block {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-left: 10px;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #4CAF50;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #45a049;
+}
+
+.result {
+  text-align: center;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+   </style> 
+
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>🧠 Simple Quiz</h1>
+
+    <form id="quizForm">
+      {% for q in questions %}
+      <div class="question-block">
+        <h3>{{ loop.index }}. {{ q.question }}</h3>
+        {% for opt in q.options %}
+        <label>
+          <input type="radio" name="q{{ q.id }}" value="{{ opt }}">
+          {{ opt }}
+        </label><br>
+        {% endfor %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn">Submit</button>
+    </form>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('quizForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // collect answers
+      const formData = new FormData(form);
+      const answers = {};
+      for (let [key, value] of formData.entries()) {
+        answers[key.replace('q', '')] = value;
+      }
+
+      // send to backend
+      const res = await fetch('/data', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ answers })
+      });
+
+      const data = await res.json();
+
+      resultDiv.innerHTML = `
+        <h2>${data.message}</h2>
+        <button class="btn" onclick="window.location.reload()">Try Again</button>
+      `;
+    });
+  </script>
+</body>
+</html>
